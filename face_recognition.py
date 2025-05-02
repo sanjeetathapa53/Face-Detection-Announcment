@@ -1,6 +1,9 @@
 import cv2
 import numpy as np
 import os
+from speech import speak_nepali
+import threading
+import time
 
 # Setup
 cap = cv2.VideoCapture(0)
@@ -17,6 +20,10 @@ faces = []
 labels = []
 class_id = 0
 names = {}
+
+recognized_times = {}
+spoken_names = set()
+
 
 # Dataset preparation
 for fx in os.listdir(dataset_path):
@@ -74,10 +81,18 @@ while True:
         label, confidence = recognizer.predict(face_section)
 
         # Lower confidence -> better match
-        if confidence < 80:  # You can tune this threshold
+        if confidence < 80:
             name = names[label]
+            current_time = time.time()
+
+            if name not in recognized_times:
+                recognized_times[name] = current_time
+            elif (current_time - recognized_times[name]) >= 3 and name not in spoken_names:
+                spoken_names.add(name)
+                threading.Thread(target=speak_nepali, args=(f"विरिन्ची कलेजमा {name} लाई स्वागत छ।",)).start()
         else:
             name = "Unknown"
+
 
         cv2.putText(frame, name, (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
         cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 255, 255), 2)
@@ -86,6 +101,9 @@ while True:
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
+
+
+    
 
 cap.release()
 cv2.destroyAllWindows()

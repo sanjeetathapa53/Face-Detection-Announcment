@@ -7,8 +7,6 @@ cap = cv2.VideoCapture(0)
 script_dir = os.path.dirname(os.path.abspath(__file__))
 cascade_path = os.path.join(script_dir, 'haarcascade_frontalface_alt.xml')
 dataset_path = os.path.join(script_dir, "face_dataset")
-
-
 face_cascade = cv2.CascadeClassifier(cascade_path)
 
 skip = 0
@@ -16,12 +14,18 @@ face_data = []
 
 file_name = input("Enter the name of person : ")
 
+def enhance_lighting(gray_img):
+    """ Apply histogram equalization to improve lighting in grayscale image """
+    return cv2.equalizeHist(gray_img)
+
 while True:
     ret, frame = cap.read()
     if not ret:
         continue
 
     gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    gray_frame = enhance_lighting(gray_frame)  # <-- lighting correction here
+
     faces = face_cascade.detectMultiScale(gray_frame, 1.3, 5)
 
     if len(faces) == 0:
@@ -37,9 +41,11 @@ while True:
         x, y, w, h = face
         offset = 10
         face_offset = frame[y-offset:y+h+offset, x-offset:x+w+offset]
-        face_selection = cv2.resize(face_offset, (100, 100))
+        face_gray = cv2.cvtColor(face_offset, cv2.COLOR_BGR2GRAY)
+        face_gray = enhance_lighting(face_gray)  # <-- lighting fix for saved sample
+        face_selection = cv2.resize(face_gray, (100, 100))
 
-        if skip % 10 == 0:
+        if skip % 2 == 0:
             face_data.append(face_selection)
             print(f"Captured sample: {len(face_data)}")
 
@@ -57,13 +63,14 @@ while True:
     if key_pressed == ord('q'):
         break
 
-    if len(face_data) >= 100:  # Optional exit limit
-        print("50 samples collected. Exiting...")
+    if len(face_data) >= 200:
+        print("100 samples collected. Exiting...")
         break
 
+# Save dataset
 face_data = np.array(face_data).reshape((len(face_data), -1))
 np.save(os.path.join(dataset_path, file_name), face_data)
-print(f"Dataset saved at: {dataset_path + file_name}.npy")
+print(f"Dataset saved at: {dataset_path + '/' + file_name}.npy")
 
 cap.release()
 cv2.destroyAllWindows()
