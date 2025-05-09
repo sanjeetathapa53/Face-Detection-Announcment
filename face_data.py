@@ -24,7 +24,10 @@ script_dir = os.path.dirname(os.path.abspath(__file__))
 cascade_path = os.path.join(script_dir, 'haarcascade_frontalface_alt.xml')
 profile_cascade_path = os.path.join(script_dir, 'haarcascade_profileface.xml')
 dataset_path = os.path.join(script_dir, "face_dataset")
+<<<<<<< HEAD
 
+=======
+>>>>>>> ab5536523085a30b017ecf4760e713f02c84fe75
 face_cascade = cv2.CascadeClassifier(cascade_path)
 profile_cascade = cv2.CascadeClassifier(profile_cascade_path)
 
@@ -43,6 +46,7 @@ while True:
         continue
 
     gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+<<<<<<< HEAD
     gray_frame = enhance_lighting(gray_frame)
 
     faces = []
@@ -61,6 +65,11 @@ while True:
     for (x, y, w, h) in flipped_profiles:
         x = gray_frame.shape[1] - x - w  # flip x back
         faces.append((x, y, w, h))
+=======
+    gray_frame = enhance_lighting(gray_frame)  # <-- lighting correction here
+
+    faces = face_cascade.detectMultiScale(gray_frame, 1.3, 5)
+>>>>>>> ab5536523085a30b017ecf4760e713f02c84fe75
 
     if len(faces) == 0:
         cv2.imshow("faces", frame)
@@ -75,6 +84,7 @@ while True:
     for face in faces[:1]:
         x, y, w, h = face
         offset = 10
+<<<<<<< HEAD
         x1 = max(0, x - offset)
         y1 = max(0, y - offset)
         x2 = min(frame.shape[1], x + w + offset)
@@ -85,6 +95,13 @@ while True:
         face_gray = enhance_lighting(face_gray)
         face_selection = cv2.resize(face_gray, (100, 100))
 
+=======
+        face_offset = frame[y-offset:y+h+offset, x-offset:x+w+offset]
+        face_gray = cv2.cvtColor(face_offset, cv2.COLOR_BGR2GRAY)
+        face_gray = enhance_lighting(face_gray)  # <-- lighting fix for saved sample
+        face_selection = cv2.resize(face_gray, (100, 100))
+
+>>>>>>> ab5536523085a30b017ecf4760e713f02c84fe75
         if skip % 2 == 0:
             face_data.append(face_selection)
             print(f"Captured sample: {len(face_data)}")
@@ -102,11 +119,18 @@ while True:
         break
 
     if len(face_data) >= 200:
+<<<<<<< HEAD
         print("200 samples collected. Exiting...")
         break
 
 # Save dataset
 os.makedirs(dataset_path, exist_ok=True)  # Create folder if it doesn't exist
+=======
+        print("100 samples collected. Exiting...")
+        break
+
+# Save dataset
+>>>>>>> ab5536523085a30b017ecf4760e713f02c84fe75
 face_data = np.array(face_data).reshape((len(face_data), -1))
 np.save(os.path.join(dataset_path, file_name), face_data)
 print(f"Dataset saved at: {dataset_path + '/' + file_name}.npy")

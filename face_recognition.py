@@ -1,10 +1,16 @@
 import cv2
 import numpy as np
 import os
+<<<<<<< HEAD
 from speech import welcome_person
 import threading
 import time
 import queue
+=======
+from speech import speak_nepali
+import threading
+import time
+>>>>>>> ab5536523085a30b017ecf4760e713f02c84fe75
 
 # Setup
 cap = cv2.VideoCapture(0)
@@ -28,6 +34,10 @@ speech_queue = queue.Queue()
 recognized_times = {}
 spoken_names = set()
 detection_counts = {}  # Track consecutive detections
+
+recognized_times = {}
+spoken_names = set()
+
 
 # Dataset preparation
 for fx in os.listdir(dataset_path):
@@ -109,6 +119,7 @@ while True:
 
         label, confidence = recognizer.predict(face_section)
 
+<<<<<<< HEAD
         if confidence < 90:
             name = names[label]
             current_names_in_frame.add(name)
@@ -134,14 +145,38 @@ while True:
     for tracked_name in list(detection_counts.keys()):
         if tracked_name not in current_names_in_frame:
             detection_counts[tracked_name] = 0
+=======
+        # Lower confidence -> better match
+        if confidence < 80:
+            name = names[label]
+            current_time = time.time()
+
+            if name not in recognized_times:
+                recognized_times[name] = current_time
+            elif (current_time - recognized_times[name]) >= 3 and name not in spoken_names:
+                spoken_names.add(name)
+                threading.Thread(target=speak_nepali, args=(f"विरिन्ची कलेजमा {name} लाई स्वागत छ।",)).start()
+        else:
+            name = "Unknown"
+
+
+        cv2.putText(frame, name, (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
+        cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 255, 255), 2)
+>>>>>>> ab5536523085a30b017ecf4760e713f02c84fe75
 
     cv2.imshow("Faces", frame)
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 
+<<<<<<< HEAD
 # Clean up
 speech_queue.put(None)
 speech_thread.join()
+=======
+
+    
+
+>>>>>>> ab5536523085a30b017ecf4760e713f02c84fe75
 cap.release()
 cv2.destroyAllWindows()

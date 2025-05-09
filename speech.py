@@ -6,6 +6,7 @@ from gtts import gTTS
 import os
 import tempfile
 from datetime import datetime
+<<<<<<< HEAD
 import pygame 
 # from indic_transliteration.sanscript import transliterate, ITRANS, DEVANAGARI
 welcome_templates = [
@@ -20,6 +21,10 @@ welcome_templates = [
     "विरिन्ची कलेजको तर्फबाट {name} लाई स्वागत छ।",
     "विरिन्ची कलेजमा उपस्थित {name} लाई हार्दिक स्वागत छ।"
 ]
+=======
+import pygame  # Add this import at the top
+
+>>>>>>> ab5536523085a30b017ecf4760e713f02c84fe75
 # Speak the welcome message in Nepali
 def speak_nepali(text):
     try:
@@ -46,6 +51,7 @@ def speak_nepali(text):
         print(f"❌ Error during TTS: {e}")
 
 
+<<<<<<< HEAD
 
 def welcome_person(name):
     message = random.choice(welcome_templates).format(name=name)
@@ -56,3 +62,9 @@ def welcome_person(name):
 # def welcome_person(name):
 #     message = f"विरिन्ची कलेजमा {name} लाई स्वागत छ।"
 #     threading.Thread(target=speak_nepali, args=(message,)).start()
+=======
+# Function to welcome recognized person
+def welcome_person(name):
+    message = f"विरिन्ची कलेजमा {name} लाई स्वागत छ।"
+    threading.Thread(target=speak_nepali, args=(message,)).start()
+>>>>>>> ab5536523085a30b017ecf4760e713f02c84fe75
