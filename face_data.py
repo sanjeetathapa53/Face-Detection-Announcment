@@ -2,7 +2,23 @@ import cv2
 import numpy as np 
 import os
 
-cap = cv2.VideoCapture(0)
+def get_working_camera_index(max_index=5):
+    for index in range(max_index):
+        cap = cv2.VideoCapture(index)
+        if cap.read()[0]:
+            cap.release()
+            return index
+        cap.release()
+    return None
+
+camera_index = get_working_camera_index()
+if camera_index is None:
+    print("No working camera found.")
+    exit()
+# Try 1, 2, etc. if 0 doesn't work for external camera
+cap = cv2.VideoCapture(1)  # 1 usually works for USB external webcam
+
+# cap = cv2.VideoCapture(0)
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 cascade_path = os.path.join(script_dir, 'haarcascade_frontalface_alt.xml')
@@ -90,6 +106,7 @@ while True:
         break
 
 # Save dataset
+os.makedirs(dataset_path, exist_ok=True)  # Create folder if it doesn't exist
 face_data = np.array(face_data).reshape((len(face_data), -1))
 np.save(os.path.join(dataset_path, file_name), face_data)
 print(f"Dataset saved at: {dataset_path + '/' + file_name}.npy")
